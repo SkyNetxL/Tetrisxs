@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const jumpSound = document.getElementById("jumpSound");
@@ -15,7 +14,11 @@ let player = {
 };
 
 let gravity = 0.5;
-let keys = {};
+let keys = {
+  left: false,
+  right: false,
+  jump: false
+};
 
 let platforms = [
   { x: 0, y: 360, width: 800, height: 40 },
@@ -23,23 +26,32 @@ let platforms = [
   { x: 400, y: 250, width: 150, height: 10 }
 ];
 
-document.addEventListener("keydown", e => keys[e.code] = true);
-document.addEventListener("keyup", e => keys[e.code] = false);
+// Клавиатура
+document.addEventListener("keydown", e => {
+  if (e.code === "ArrowLeft") keys.left = true;
+  if (e.code === "ArrowRight") keys.right = true;
+  if (e.code === "Space") keys.jump = true;
+});
 
-function moveLeft() { player.dx = -4; }
-function moveRight() { player.dx = 4; }
-function jump() {
-  if (player.onGround) {
-    player.dy = -10;
-    jumpSound.play();
-  }
-}
+document.addEventListener("keyup", e => {
+  if (e.code === "ArrowLeft") keys.left = false;
+  if (e.code === "ArrowRight") keys.right = false;
+  if (e.code === "Space") keys.jump = false;
+});
+
+// Сенсорные кнопки
+function moveLeft() { keys.left = true; setTimeout(() => keys.left = false, 200); }
+function moveRight() { keys.right = true; setTimeout(() => keys.right = false, 200); }
+function jump() { keys.jump = true; setTimeout(() => keys.jump = false, 200); }
 
 function update() {
   player.dx = 0;
-  if (keys["ArrowLeft"]) player.dx = -4;
-  if (keys["ArrowRight"]) player.dx = 4;
-  if (keys["Space"] && player.onGround) jump();
+  if (keys.left) player.dx = -4;
+  if (keys.right) player.dx = 4;
+  if (keys.jump && player.onGround) {
+    player.dy = -10;
+    jumpSound.play();
+  }
 
   player.x += player.dx;
   player.dy += gravity;
